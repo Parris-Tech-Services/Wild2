@@ -204,6 +204,7 @@ function goTo(id) {
   document.getElementById('play-again').style.display = 'none';
   document.getElementById('choices').innerHTML = '';
   const text = typeof scene.text === 'function' ? scene.text() : scene.text;
+  if (text && text.indexOf('ENDING:') > -1) recordEnding(id);
   typeText(text, () => {
     const choices = typeof scene.choices === 'function' ? scene.choices() : scene.choices;
     if (choices && choices.length) {
@@ -602,10 +603,40 @@ HP: ${Math.max(0,state.hp)} | Shouts Known: ${state.shouts} | Race: ${state.race
   },
 };
 
+// ─── SAVED PROGRESS (localStorage) ────────────────────────────────────────────
+const SAVE_KEY = 'wild2_endings';
+const TOTAL_ENDINGS = 3;
+
+function loadEndings() {
+  try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || []; }
+  catch (e) { return []; }
+}
+
+function recordEnding(id) {
+  const found = loadEndings();
+  if (!found.includes(id)) {
+    found.push(id);
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(found)); } catch (e) {}
+  }
+  renderProgress();
+}
+
+function renderProgress() {
+  let el = document.getElementById('progress-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'progress-bar';
+    el.style.cssText = 'font-size:0.72rem;color:#4a2000;letter-spacing:0.1em;text-align:center;margin-top:14px;';
+    document.getElementById('game-container').appendChild(el);
+  }
+  el.textContent = 'ENDINGS DISCOVERED: ' + loadEndings().length + ' / ' + TOTAL_ENDINGS + ' (saved on this device)';
+}
+
 function startGame() {
   state.hp = 100; state.stamina = 100; state.shouts = 0; state.race = ''; state.chapter = 1; state.flags = {};
   document.getElementById('play-again').style.display = 'none';
   updateStats();
+  renderProgress();
   goTo('race_select');
 }
 
