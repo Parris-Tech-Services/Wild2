@@ -34,6 +34,7 @@
   <div class="choices" id="choices"></div>
   <div class="log" id="log"></div>
   <div class="saved-note" id="savenote"></div>
+  <div id="codex" style="margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px"></div>
 </div>
 <script>
 const SKEY='wild2_save_v1';
@@ -142,10 +143,18 @@ Where you plant it, green returns. It is a risk — a wild thing loosed in new s
 <span class="bad">The forest keeps what it takes.</span>` },
 };
 
+const ALL_ENDINGS=[['end_tender','The Tender'],['end_herald','The Herald'],['end_seedbearer','The Seed-Bearer'],['end_kin','Kin of the Wild'],['end_lost','Taken by the Wild']];
+function renderCodex(){
+  const done=S.endings.length;
+  $('codex').innerHTML=`<div style="font-size:.78rem;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">WARDEN'S CODEX · ${done}/5 ENDINGS</div>`+
+    ALL_ENDINGS.map(([id,name])=>{ const got=S.endings.includes(id); return `<div style="font-size:.84rem;padding:3px 0;color:${got?'var(--gold)':'var(--muted)'}">${got?'❧ '+name:'· ???'}</div>`; }).join('')+
+    (done===5?'<div style="color:var(--good);font-size:.82rem;margin-top:8px">🏆 Heart of the Greenwild — every path walked!</div>':'');
+}
 function render(){
   stats();
   const node=N[S.node];
   $('savenote').textContent=`Endings discovered: ${S.endings.length} / 5 · progress auto-saves`;
+  renderCodex();
   if(node.roleSelect){
     $('story').innerHTML=node.text;
     $('choices').innerHTML='';
